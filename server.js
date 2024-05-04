@@ -40,27 +40,39 @@ function hashPassword(password) {
   return crypto.createHash('sha256').update(password).digest('hex');
 }
 
+// CORS handling middleware
+const allowCors = fn => async (req, res) => {
+  res.setHeader('Access-Control-Allow-Credentials', true)
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  )
+  if (req.method === 'OPTIONS') {
+    res.status(200).end()
+    return
+  }
+  return await fn(req, res)
+}
 
 // Register endpoint
-app.post('/register', async (req, res) => {
+app.post('/register', allowCors(async (req, res) => {
   try {
     const { firstname, lastname, email, password, phonenumber } = req.body;
     const passwordHash = hashPassword(password);
     const user = new User({ firstname, lastname, email, passwordHash, phonenumber });
     await user.save();
     const token = generateAccessToken({ firstname, email });
-    
-    // Set Access-Control-Allow-Origin header to allow all origins
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    
     res.json({ token });
   } catch (err) {
     console.error(err);
     res.status(500).send('Error registering new user.');
   }
-});
+}));
+
 // Login endpoint
-app.post('/login', async (req, res) => {
+app.post('/login', allowCors(async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -77,7 +89,7 @@ app.post('/login', async (req, res) => {
     console.error(err);
     res.status(500).send('Error logging in.');
   }
-});
+}));
 
 // Define Mongoose schema and model for Feedback
 const Feedback = mongoose.model('Feedback', {
@@ -87,7 +99,7 @@ const Feedback = mongoose.model('Feedback', {
 });
 
 // Feedback endpoint
-app.post('/feedback', async (req, res) => {
+app.post('/feedback', allowCors(async (req, res) => {
   try {
     const { fullname, email, message } = req.body;
     const feedback = new Feedback({ fullname, email, message });
@@ -97,7 +109,7 @@ app.post('/feedback', async (req, res) => {
     console.error(err);
     res.status(500).send('Error submitting feedback.');
   }
-});
+}));
 
 // Start the server
 app.listen(3000, () => {
