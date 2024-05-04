@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/Employees', {
+mongoose.connect('mongodb+srv://Prateek:QQpFHHYa03KOq8sJ@ems.seoc5u5.mongodb.net/?retryWrites=true&w=majority&appName=EMS/Employees', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
