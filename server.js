@@ -11,7 +11,11 @@ const app = express();
 
 // Middleware setup
 app.use(bodyParser.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 // MongoDB connection
 mongoose.connect('mongodb+srv://Prateek:QQpFHHYa03KOq8sJ@ems.seoc5u5.mongodb.net/?retryWrites=true&w=majority&appName=EMS/Employees', {
