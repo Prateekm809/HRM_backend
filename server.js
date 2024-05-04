@@ -40,6 +40,7 @@ function hashPassword(password) {
   return crypto.createHash('sha256').update(password).digest('hex');
 }
 
+
 // Register endpoint
 app.post('/register', async (req, res) => {
   try {
@@ -48,13 +49,16 @@ app.post('/register', async (req, res) => {
     const user = new User({ firstname, lastname, email, passwordHash, phonenumber });
     await user.save();
     const token = generateAccessToken({ firstname, email });
+    
+    // Set Access-Control-Allow-Origin header to allow all origins
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    
     res.json({ token });
   } catch (err) {
     console.error(err);
     res.status(500).send('Error registering new user.');
   }
 });
-
 // Login endpoint
 app.post('/login', async (req, res) => {
   try {
